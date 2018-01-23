@@ -1,0 +1,7 @@
+---
+ - hosts: control_node
+   tasks: 
+         - name: TEMPLATE THE MANAGER.XML FILE
+           template:
+                src: /root/jenkins+tomcat/templates/managerxml.j2
+                dest: /root/tomcat9/apache-tomcat-9.0.0.M10/conf/Catalina/localhost/manager.xml

@@ -1,0 +1,76 @@
+---
+ - name: INSTALL THE EPEL REPOSITORY
+   yum:
+        name: epel-release
+        state: latest
+
+ - name: REMOVE HTTPD
+   shell: systemctl is-active httpd
+   ignore_errors: yes
+   register: httpd_output
+
+ - name: DEBUG THE HTTPD OUTPUT
+   debug:
+        var: httpd_output
+
+ - name: REMOVE HTTPD IF PRESENT
+   yum:
+        name: httpd
+        state: absent
+   when: httpd_output.failed == false
+
+ - name: INSTALL JAVA VERSION 8
+   yum: 
+        name: "{{ item }}"
+        state: latest
+   with_items:
+        - wget
+        - java-1.8.0-openjdk
+
+ - name: CREATE THE JENKINS DIRECTORY
+   file: 
+        name: jenkins
+        path: /root/
+        state: directory
+
+ - name: CREATE THE TOMCAT DIRECTORY
+   file: 
+        name: tomcat9
+        path: /root/jenkins/
+        state: directory
+
+ - name: DOWNLOAD TAR FILE FOR TOMCAT
+   get_url:
+        url: https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.0.M10/bin/apache-tomcat-9.0.0.M10.tar.gz
+        dest: /root/tomcat9
+
+ - name: UNARCHIVE THE TOMCAT
+   unarchive:
+       src: /root/tomcat9/apache-tomcat-9.0.0.M10.tar.gz
+       dest: /root/tomcat9
+       remote_src: yes
+
+ - name: TEMPLATE THE TOMCAT XML FILE
+   template:
+       src: /root/jenkins+tomcat/templates/tomcat-users.j2
+       dest: /root/tomcat9/apache-tomcat-9.0.0.M10/conf/tomcat-users.xml
+
+ - name: START THE TOMCAT SERVER 
+   command: /root/tomcat9/apache-tomcat-9.0.0.M10/./bin/startup.sh
+
+ - name: DOWNLOAD THE JENKINS WAR FILE
+   get_url:
+        url: http://updates.jenkins-ci.org/latest/jenkins.war
+        dest: /root/jenkins
+
+ - debug:
+        msg: YOU HAVE INSTALLED JENKINS ON TOMCAT NOW OPEN THE BROWSER AND OPEN YOUR TOMCAT AT http://serverip:8080 ,,,,,,,,,,,  CYBERCORE TECHNOLOGIES ,,,,,,,,,,,WHERE DEVOPS IS NO HASTLE ,,,,,,,,,,,,
+
+
+
+
+
+
+
+
+ 
